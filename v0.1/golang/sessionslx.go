@@ -105,7 +105,7 @@ func execAndParseTokenPayloadStr(
 
 func setSession(
 	cacheAddress string,
-	serverName string,
+	identifier string,
 	tokenPayload *jwtx.TokenPayload,
 	expirationInSeconds int64,
 ) (
@@ -122,7 +122,7 @@ func setSession(
 	}
 	tokenPayloadAsStr := string(tokenPayloadBytes)
 
-	setID := getCacheSetID(serverName, sessionTokens, *tokenPayload.Token)
+	setID := getCacheSetID(identifier, sessionTokens, *tokenPayload.Token)
 	instructions := []interface{}{
 		setCache,
 		setID,
@@ -136,7 +136,7 @@ func setSession(
 
 func CreateSession(
 	cacheAddress string,
-	serverName string,
+	identifier string,
 	params *jwtx.CreateJWTParams,
 ) error {
 	tokenPayload, errTokenPayload := jwtx.CreateJWT(params, nil)
@@ -146,7 +146,7 @@ func CreateSession(
 
 	sessionWasSet, errSetSession := setSession(
 		cacheAddress,
-		serverName,
+		identifier,
 		tokenPayload,
 		params.Lifetime,
 	)
@@ -163,7 +163,7 @@ func CreateSession(
 
 func VerifySession(
 	cacheAddress string,
-	serverName string,
+	identifier string,
 	token string,
 	audTarget string,
 ) (
@@ -179,7 +179,7 @@ func VerifySession(
 		return false, errValidateWindow
 	}
 
-	setID := getCacheSetID(serverName, sessionTokens, token)
+	setID := getCacheSetID(identifier, sessionTokens, token)
 	instructions := []interface{}{getCache, setID}
 	tokenPayloadStr, errTokenPayloadStr := execAndParseTokenPayloadStr(
 		cacheAddress,
