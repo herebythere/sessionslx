@@ -13,14 +13,12 @@ import (
 
 const (
 	applicationJson = "application/json"
-	setCache        = "SET"
-	getCache        = "GET"
 	expCache        = "EX"
+	getCache        = "GET"
 	oneDayInSeconds = 60 * 60 * 24
-
-	unableToWriteToCache = "unable to write jwt to cache"
-	sessionTokens        = "session_tokens"
-	colonDelimiter       = ":"
+	setCache        = "SET"
+	sessionTokens   = "session_tokens"
+	colonDelimiter  = ":"
 )
 
 var (
@@ -94,13 +92,13 @@ func execAndParseTokenPayloadStr(
 		return nil, errJSONResponse
 	}
 
-	serviceAsBytes, errServiceAsBytes := base64.URLEncoding.DecodeString(
+	tokenPayloadAsBytes, errTokenPayloadAsBytes := base64.URLEncoding.DecodeString(
 		tokenPayloadAsBase64,
 	)
-	if errServiceAsBytes != nil {
-		return nil, errServiceAsBytes
+	if errTokenPayloadAsBytes != nil {
+		return nil, errTokenPayloadAsBytes
 	}
-	serviceReturned := string(serviceAsBytes)
+	serviceReturned := string(tokenPayloadAsBytes)
 
 	return &serviceReturned, nil
 }

@@ -27,7 +27,10 @@ var (
 		Sub:      testPerson,
 		Lifetime: 3600,
 	}
-	tokenPayloadTest, errTokenPayloadTest = jwtx.CreateJWT(&jwtxParamsTest, nil)
+	tokenPayloadTest, errTokenPayloadTest = jwtx.CreateJWT(
+		&jwtxParamsTest,
+		nil,
+	)
 	lateDelay                             = int64(60)
 	lateJwtxPayloadTest                   = jwtx.CreateJWTParams{
 		Aud:      []string{testLocalSessions},
@@ -36,14 +39,20 @@ var (
 		Sub:      testPerson,
 		Lifetime: 3600,
 	}
-	lateTokenPayloadTest, errLateTokenPayloadTest = jwtx.CreateJWT(&lateJwtxPayloadTest, nil)
+	lateTokenPayloadTest, errLateTokenPayloadTest = jwtx.CreateJWT(
+		&lateJwtxPayloadTest,
+		nil,
+	)
 	expiredTokenPayloadTest                       = jwtx.CreateJWTParams{
 		Aud:      []string{testLocalSessions},
 		Iss:      testIss,
 		Sub:      testPerson,
 		Lifetime: 0,
 	}
-	expiredTokenPayload, errExpiredTokenPayload = jwtx.CreateJWT(&expiredTokenPayloadTest, nil)
+	expiredTokenPayload, errExpiredTokenPayload = jwtx.CreateJWT(
+		&expiredTokenPayloadTest,
+		nil,
+	)
 )
 
 func TestExecAndReturnBool(t *testing.T) {
@@ -58,7 +67,7 @@ func TestExecAndReturnBool(t *testing.T) {
 	}
 	if resp == false {
 		t.Fail()
-		t.Logf("set service was not successfuul")
+		t.Logf("set session token was not successfuul")
 	}
 }
 
@@ -76,7 +85,7 @@ func TestSetSession(t *testing.T) {
 	)
 	if !setSuccessful {
 		t.Fail()
-		t.Logf("set service was not successfuul")
+		t.Logf("set session token was not successfuul")
 	}
 	if errSetSuccessful != nil {
 		t.Fail()
