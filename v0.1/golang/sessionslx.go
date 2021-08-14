@@ -12,54 +12,62 @@ import (
 )
 
 const (
-	applicationJson = "application/json"
+	applicationJSON = "application/json"
+	colonDelimiter  = ":"
 	expCache        = "EX"
 	getCache        = "GET"
-	oneDayInSeconds = 60 * 60 * 24
-	setCache        = "SET"
+	okCache         = "OK"
 	sessionTokens   = "session_tokens"
-	colonDelimiter  = ":"
+	setCache        = "SET"
 )
 
 var (
-	errTokenPayloadIsNil   = errors.New("token payload is nil")
-	errInstructionsAreNil  = errors.New("instructions are nil")
-	errSessionWasNotStored = errors.New("session was not stored")
-	errSessionDoesNotExist = errors.New("session does not exist")
+	errTokenPayloadIsNil      = errors.New("token payload is nil")
+	errInstructionsAreNil     = errors.New("instructions are nil")
+	errSessionWasNotStored    = errors.New("session was not stored")
+	errSessionDoesNotExist    = errors.New("session does not exist")
+	errNilEntry               = errors.New("nil entry was provided")
+	errRequestFailedToResolve = errors.New("request failed to resolve instructions")
 )
 
 func getCacheSetID(categories ...string) string {
 	return strings.Join(categories, colonDelimiter)
 }
 
-func execAndReturnBool(
+func execInstructionsAndParseString(
 	cacheAddress string,
 	instructions *[]interface{},
 ) (
-	bool,
+	*string,
 	error,
 ) {
 	if instructions == nil {
-		return false, errInstructionsAreNil
+		return nil, errNilEntry
 	}
 
 	bodyBytes := new(bytes.Buffer)
 	errJson := json.NewEncoder(bodyBytes).Encode(*instructions)
 	if errJson != nil {
-		return false, errJson
+		return nil, errJson
 	}
 
-	resp, errResponse := http.Post(cacheAddress, applicationJson, bodyBytes)
-	if errResponse != nil {
-		return false, errResponse
+	resp, errResp := http.Post(cacheAddress, applicationJSON, bodyBytes)
+	if errResp != nil {
+		return nil, errResp
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK {
-		return true, nil
+	if resp.StatusCode != http.StatusOK {
+		return nil, errRequestFailedToResolve
 	}
 
-	return false, nil
+	var respBodyAsBase64 string
+	errJSONResponse := json.NewDecoder(resp.Body).Decode(&respBodyAsBase64)
+	if errJSONResponse != nil {
+		return nil, errJSONResponse
+	}
+
+	return &respBodyAsBase64, errJSONResponse
 }
 
 func execAndParseTokenPayloadStr(
@@ -79,7 +87,7 @@ func execAndParseTokenPayloadStr(
 		return nil, errJson
 	}
 
-	resp, errResp := http.Post(cacheAddress, applicationJson, bodyBytes)
+	resp, errResp := http.Post(cacheAddress, applicationJSON, bodyBytes)
 	if errResp != nil {
 		return nil, errResp
 	}
@@ -107,7 +115,7 @@ func setSession(
 	cacheAddress string,
 	identifier string,
 	tokenPayload *jwtx.TokenPayload,
-	expirationInSeconds int64,
+	lifetimeInSeconds int64,
 ) (
 	bool,
 	error,
@@ -128,10 +136,18 @@ func setSession(
 		setID,
 		tokenPayloadAsStr,
 		expCache,
-		expirationInSeconds,
+		lifetimeInSeconds,
 	}
 
-	return execAndReturnBool(cacheAddress, &instructions)
+	respStr, errRespStr := execInstructionsAndParseString(cacheAddress, &instructions)
+	if errRespStr != nil {
+		return false, errRespStr
+	}
+	if *respStr == okCache {
+		return true, nil
+	}
+
+	return false, errRequestFailedToResolve
 }
 
 func CreateSession(

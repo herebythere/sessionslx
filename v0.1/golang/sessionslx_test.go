@@ -17,6 +17,7 @@ const (
 
 var (
 	localCacheAddress = os.Getenv("LOCAL_CACHE_ADDRESS")
+	// localCacheAddress = "http://10.88.0.1:1234"
 )
 
 var (
@@ -53,22 +54,6 @@ var (
 		nil,
 	)
 )
-
-func TestExecAndReturnBool(t *testing.T) {
-	instructions := []interface{}{increment, testJSONIncrement}
-	resp, errResp := execAndReturnBool(
-		localCacheAddress,
-		&instructions,
-	)
-	if errResp != nil {
-		t.Fail()
-		t.Logf(errResp.Error())
-	}
-	if resp == false {
-		t.Fail()
-		t.Logf("set session token was not successfuul")
-	}
-}
 
 func TestSetSession(t *testing.T) {
 	if errTokenPayloadTest != nil {
