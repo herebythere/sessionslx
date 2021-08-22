@@ -1,2 +1,4 @@
 github.com/herebythere/jwtx/v0.1/golang v0.0.0-20210808035205-a03aa9a361c2 h1:GJAfl+8Yhf0Ic9/VbsZ/+jk/arRK+PEPKGRrBOaufYs=
 github.com/herebythere/jwtx/v0.1/golang v0.0.0-20210808035205-a03aa9a361c2/go.mod h1:dCh4LW29ERecAXszbvssLw0lOSHjA+Xs9uqL3nmuMpE=
+github.com/herebythere/supercachelx/v0.1/golang v0.0.0-20210821060124-804c93f5991b h1:YUKuIA4yWtIDH746+l41TdC+1PG70tot8r8IdWvteE4=
+github.com/herebythere/supercachelx/v0.1/golang v0.0.0-20210821060124-804c93f5991b/go.mod h1:ay6UsfW1cwADCFkCz5EIJGGcn6bBtIIzXGbhk+zf6T4=

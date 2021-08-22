@@ -9,7 +9,6 @@ import (
 
 const (
 	increment         = "INCR"
-	testJSONIncrement = "test_json_increment"
 	testPerson        = "test_person"
 	testLocalSessions = "local_sessions_test"
 	testIss           = "testIss"
@@ -17,7 +16,7 @@ const (
 
 var (
 	localCacheAddress = os.Getenv("LOCAL_CACHE_ADDRESS")
-	// localCacheAddress = "http://10.88.0.1:1234"
+	// localCacheAddress = "http://10.88.0.1:6050"
 )
 
 var (

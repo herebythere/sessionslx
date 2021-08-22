@@ -5,20 +5,19 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"net/http"
 	"strings"
 
 	jwtx "github.com/herebythere/jwtx/v0.1/golang"
+	sclx "github.com/herebythere/supercachelx/v0.1/golang"
 )
 
 const (
-	applicationJSON = "application/json"
-	colonDelimiter  = ":"
-	expCache        = "EX"
-	getCache        = "GET"
-	okCache         = "OK"
-	sessionTokens   = "session_tokens"
-	setCache        = "SET"
+	colonDelimiter = ":"
+	expCache       = "EX"
+	getCache       = "GET"
+	okCache        = "OK"
+	sessionTokens  = "session_tokens"
+	setCache       = "SET"
 )
 
 var (
@@ -26,48 +25,11 @@ var (
 	errInstructionsAreNil     = errors.New("instructions are nil")
 	errSessionWasNotStored    = errors.New("session was not stored")
 	errSessionDoesNotExist    = errors.New("session does not exist")
-	errNilEntry               = errors.New("nil entry was provided")
 	errRequestFailedToResolve = errors.New("request failed to resolve instructions")
 )
 
 func getCacheSetID(categories ...string) string {
 	return strings.Join(categories, colonDelimiter)
-}
-
-func execInstructionsAndParseString(
-	cacheAddress string,
-	instructions *[]interface{},
-) (
-	*string,
-	error,
-) {
-	if instructions == nil {
-		return nil, errNilEntry
-	}
-
-	bodyBytes := new(bytes.Buffer)
-	errJson := json.NewEncoder(bodyBytes).Encode(*instructions)
-	if errJson != nil {
-		return nil, errJson
-	}
-
-	resp, errResp := http.Post(cacheAddress, applicationJSON, bodyBytes)
-	if errResp != nil {
-		return nil, errResp
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, errRequestFailedToResolve
-	}
-
-	var respBodyAsBase64 string
-	errJSONResponse := json.NewDecoder(resp.Body).Decode(&respBodyAsBase64)
-	if errJSONResponse != nil {
-		return nil, errJSONResponse
-	}
-
-	return &respBodyAsBase64, errJSONResponse
 }
 
 func execAndParseTokenPayloadStr(
@@ -87,21 +49,16 @@ func execAndParseTokenPayloadStr(
 		return nil, errJson
 	}
 
-	resp, errResp := http.Post(cacheAddress, applicationJSON, bodyBytes)
-	if errResp != nil {
-		return nil, errResp
-	}
-	defer resp.Body.Close()
-
-	var tokenPayloadAsBase64 string
-	errJSONResponse := json.NewDecoder(resp.Body).Decode(&tokenPayloadAsBase64)
-	if errJSONResponse != nil {
-
-		return nil, errJSONResponse
+	tokenPayloadBase64, errTokenPayloadBase64 := sclx.ExecInstructionsAndParseString(
+		cacheAddress,
+		instructions,
+	)
+	if errTokenPayloadBase64 != nil {
+		return nil, errTokenPayloadBase64
 	}
 
 	tokenPayloadAsBytes, errTokenPayloadAsBytes := base64.URLEncoding.DecodeString(
-		tokenPayloadAsBase64,
+		*tokenPayloadBase64,
 	)
 	if errTokenPayloadAsBytes != nil {
 		return nil, errTokenPayloadAsBytes
@@ -139,7 +96,10 @@ func setSession(
 		lifetimeInSeconds,
 	}
 
-	respStr, errRespStr := execInstructionsAndParseString(cacheAddress, &instructions)
+	respStr, errRespStr := sclx.ExecInstructionsAndParseString(
+		cacheAddress,
+		&instructions,
+	)
 	if errRespStr != nil {
 		return false, errRespStr
 	}
