@@ -11,6 +11,16 @@ import (
 	sclx "github.com/herebythere/supercachelx/v0.1/golang"
 )
 
+type CreateSessionParams = jwtx.CreateJWTParams
+
+// type CreateSessionParams struct {
+// 	Aud      []string `json:"aud"`
+// 	Iss      string   `json:"iss"`
+// 	Sub      string   `json:"sub"`
+// 	Lifetime int64    `json:"lifetime"`
+// 	Delay    *int64   `json:"delay,omitempty"`
+// }
+
 const (
 	colonDelimiter = ":"
 	expCache       = "EX"
@@ -113,7 +123,7 @@ func setSession(
 func CreateSession(
 	cacheAddress string,
 	identifier string,
-	params *jwtx.CreateJWTParams,
+	params *CreateSessionParams,
 ) error {
 	tokenPayload, errTokenPayload := jwtx.CreateJWT(params, nil)
 	if errTokenPayload != nil {

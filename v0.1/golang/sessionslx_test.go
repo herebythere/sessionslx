@@ -16,11 +16,11 @@ const (
 
 var (
 	localCacheAddress = os.Getenv("LOCAL_CACHE_ADDRESS")
-	// localCacheAddress = "http://10.88.0.1:6050"
+	// localCacheAddress = "http://10.88.0.1:1234"
 )
 
 var (
-	jwtxParamsTest = jwtx.CreateJWTParams{
+	jwtxParamsTest = CreateSessionParams{
 		Aud:      []string{testLocalSessions},
 		Iss:      testIss,
 		Sub:      testPerson,
@@ -31,7 +31,7 @@ var (
 		nil,
 	)
 	lateDelay           = int64(60)
-	lateJwtxPayloadTest = jwtx.CreateJWTParams{
+	lateJwtxPayloadTest = CreateSessionParams{
 		Aud:      []string{testLocalSessions},
 		Delay:    &lateDelay,
 		Iss:      testIss,
@@ -42,7 +42,7 @@ var (
 		&lateJwtxPayloadTest,
 		nil,
 	)
-	expiredTokenPayloadTest = jwtx.CreateJWTParams{
+	expiredTokenPayloadTest = CreateSessionParams{
 		Aud:      []string{testLocalSessions},
 		Iss:      testIss,
 		Sub:      testPerson,
